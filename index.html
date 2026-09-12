@@ -8,7 +8,6 @@
     :root {
       --bg-color: #e9e6df;
       --card-bg: #ffffff;
-      --header-bg: #e2ddd3;
       --text-color: #333333;
       --primary-blue: #1b365d;
       --accent-gold: #c59b27;
@@ -22,11 +21,11 @@
     .brand-title { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; }
     .brand-title span { color: var(--accent-gold); }
 
-    /* Nav Tabs */
+    /* Nav Bar */
     .nav-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
     .nav-item {
       background: #dad5ca; padding: 10px 14px; border-radius: 6px; text-align: center;
-      min-width: 70px; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; border: none; outline: none;
+      min-width: 70px; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; border: none; outline: none; flex: 1;
     }
     .nav-item.active { background: #ffffff; color: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
 
@@ -38,21 +37,18 @@
     .stat-value.red { color: var(--alert-red); }
     .stat-sub { font-size: 11px; color: #6b7280; }
 
-    /* Tab Content Controls */
+    /* Controls Tab */
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block !important; }
 
     .filter-section { background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     .search-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
     
-    /* Customer Data Row */
-    .data-list { background: var(--card-bg); border-radius: 8px; border: 1px solid #eee; }
-    .customer-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f3f4f6; }
+    .customer-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
     .customer-name { font-weight: 700; font-size: 13px; color: #111; }
     .customer-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
     .customer-amount { font-weight: 800; font-size: 13px; color: var(--alert-red); }
 
-    /* Inputs */
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
     .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
@@ -61,7 +57,6 @@
     .sync-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue); color: white; font-size: 11px; padding: 6px 15px; display: flex; justify-content: space-between; z-index: 999; }
   </style>
 
-  <!-- Firebase Compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
@@ -72,9 +67,9 @@
 
   <!-- Tab Menu -->
   <div class="nav-bar">
-    <button class="nav-item" id="btn-phieuthu">📄 Phiếu thu</button>
-    <button class="nav-item" id="btn-nhapnhanh">⚡ Nhập nhanh</button>
-    <button class="nav-item active" id="btn-congno">🏛️ Công nợ</button>
+    <button type="button" class="nav-item active" data-tab="congno">🏛️ Công nợ</button>
+    <button type="button" class="nav-item" data-tab="nhapnhanh">⚡ Nhập nhanh</button>
+    <button type="button" class="nav-item" data-tab="phieuthu">📄 Phiếu thu</button>
   </div>
 
   <!-- TAB CÔNG NỢ -->
@@ -94,7 +89,7 @@
 
     <div class="filter-section">
       <input type="text" id="searchInput" class="search-input" placeholder="Gõ tên khách để tìm...">
-      <div class="data-list" id="customerContainer"></div>
+      <div id="customerContainer"></div>
     </div>
   </div>
 
@@ -124,114 +119,113 @@
   <div id="tab-phieuthu" class="tab-content">
     <div class="filter-section">
       <h3 style="margin-top:0;">Lịch Sử Thu Phí</h3>
-      <div class="data-list" id="receiptHistory"></div>
+      <div id="receiptHistory"></div>
     </div>
   </div>
 
   <div class="sync-bar">
-    <span>📶 Dashaus Realtime Connected</span>
-    <span id="syncStatus">Đang kết nối...</span>
+    <span>📶 Dashaus Realtime</span>
+    <span id="syncStatus">Đã kết nối</span>
   </div>
 
   <script>
-    // 1. Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyD7S8piLF6v1X9lrmldkBdvhyPw1gNf4Ag",
-      authDomain: "dashausraum.firebaseapp.com",
-      databaseURL: "https://dashausraum-default-rtdb.firebaseio.com",
-      projectId: "dashausraum",
-      storageBucket: "dashausraum.firebasestorage.app",
-      messagingSenderId: "604478845270",
-      appId: "1:604478845270:web:e4257ffffc29c0b564a6f7",
-      measurementId: "G-T5W3Z80SJ2"
-    };
+    // Xử lý chuyển tab trực tiếp bằng EventListener
+    document.querySelectorAll('.nav-item').forEach(button => {
+      button.addEventListener('click', function() {
+        const tabTarget = this.getAttribute('data-tab');
+        
+        // Reset class active
+        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Active tab chọn
+        this.classList.add('active');
+        const activeTab = document.getElementById('tab-' + tabTarget);
+        if (activeTab) activeTab.classList.add('active');
+      });
+    });
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const dbRef = database.ref('dashausData');
-
-    let defaultData = [
+    // Dữ liệu mẫu
+    let dataList = [
       { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
       { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
       { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
     ];
 
-    // 2. Tab Switching Logic
-    function openTab(tabName, btnElement) {
-      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      
-      document.getElementById('tab-' + tabName).classList.add('active');
-      btnElement.classList.add('active');
-    }
-
-    document.getElementById('btn-phieuthu').onclick = function() { openTab('phieuthu', this); };
-    document.getElementById('btn-nhapnhanh').onclick = function() { openTab('nhapnhanh', this); };
-    document.getElementById('btn-congno').onclick = function() { openTab('congno', this); };
-
-    // 3. Render Functions
-    function renderList(list) {
+    function renderList(items) {
       const container = document.getElementById('customerContainer');
       const history = document.getElementById('receiptHistory');
-      
       let html = '';
-      list.forEach(item => {
+      items.forEach(item => {
         html += `
           <div class="customer-item">
             <div>
               <div class="customer-name">${item.name}</div>
-              <div class="customer-sub">${item.addr || 'Hồ Chí Minh'}</div>
+              <div class="customer-sub">${item.addr || ''}</div>
             </div>
             <div class="customer-amount">${Number(item.amount).toLocaleString('vi-VN')}đ</div>
           </div>
         `;
       });
-
-      container.innerHTML = html;
-      history.innerHTML = html;
+      if (container) container.innerHTML = html;
+      if (history) history.innerHTML = html;
     }
 
-    // Search filter
-    document.getElementById('searchInput').oninput = function() {
-      const val = this.value.toLowerCase();
-      const filtered = defaultData.filter(i => i.name.toLowerCase().includes(val) || (i.addr && i.addr.toLowerCase().includes(val)));
-      renderList(filtered);
-    };
+    // Tìm kiếm
+    const searchInp = document.getElementById('searchInput');
+    if (searchInp) {
+      searchInp.addEventListener('input', function() {
+        const val = this.value.toLowerCase();
+        const filtered = dataList.filter(i => i.name.toLowerCase().includes(val) || (i.addr && i.addr.toLowerCase().includes(val)));
+        renderList(filtered);
+      });
+    }
 
-    // 4. Form Submit & Firebase push
-    document.getElementById('addForm').onsubmit = function(e) {
-      e.preventDefault();
-      const name = document.getElementById('custName').value;
-      const addr = document.getElementById('custAddr').value;
-      const amount = document.getElementById('custAmount').value;
+    // Firebase
+    try {
+      const firebaseConfig = {
+        apiKey: "AIzaSyD7S8piLF6v1X9lrmldkBdvhyPw1gNf4Ag",
+        authDomain: "dashausraum.firebaseapp.com",
+        databaseURL: "https://dashausraum-default-rtdb.firebaseio.com",
+        projectId: "dashausraum",
+        storageBucket: "dashausraum.firebasestorage.app",
+        messagingSenderId: "604478845270",
+        appId: "1:604478845270:web:e4257ffffc29c0b564a6f7"
+      };
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const dbRef = firebase.database().ref('dashausData');
 
-      dbRef.push({
-        name: name,
-        addr: addr,
-        amount: Number(amount),
-        timestamp: Date.now()
+      document.getElementById('addForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const newItem = {
+          name: document.getElementById('custName').value,
+          addr: document.getElementById('custAddr').value,
+          amount: Number(document.getElementById('custAmount').value),
+          timestamp: Date.now()
+        };
+        dbRef.push(newItem);
+        this.reset();
+        document.querySelector('[data-tab="congno"]').click();
       });
 
-      this.reset();
-      openTab('congno', document.getElementById('btn-congno'));
-    };
+      dbRef.on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (val) {
+          const list = Object.values(val).reverse();
+          dataList = list.concat([
+            { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
+            { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
+            { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
+          ]);
+        }
+        renderList(dataList);
+        document.getElementById('syncStatus').innerText = 'Đồng bộ: ' + new Date().toLocaleTimeString('vi-VN');
+      });
+    } catch(err) {
+      console.log('Firebase init error:', err);
+    }
 
-    // 5. Firebase Listener
-    dbRef.on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const firebaseList = Object.values(data).reverse();
-        defaultData = firebaseList.concat([
-          { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
-          { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
-          { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
-        ]);
-      }
-      renderList(defaultData);
-      document.getElementById('syncStatus').innerText = 'Đã đồng bộ: ' + new Date().toLocaleTimeString('vi-VN');
-    });
-
-    renderList(defaultData);
+    renderList(dataList);
   </script>
 </body>
 </html>
