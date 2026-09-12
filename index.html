@@ -1,231 +1,96 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashaus & Raum - Hệ Thống Thu Phí Vận Hành</title>
-  <style>
-    :root {
-      --bg-color: #e9e6df;
-      --card-bg: #ffffff;
-      --text-color: #333333;
-      --primary-blue: #1b365d;
-      --accent-gold: #c59b27;
-      --alert-red: #d9534f;
-      --border-color: #d1cbd0;
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hệ Thống Quản Lý Tài Chính & Công Nợ - Dashaus & Raum</title>
+<style>
+  :root {
+    --bg-primary: #f8fafc;
+    --bg-surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --brand-dashaus: #2563eb;
+    --brand-raum: #059669;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #10b981;
+    --radius: 8px;
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  }
+
+  [data-theme="dark"] {
+    --bg-primary: #0f172a;
+    --bg-surface: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    line-height: 1.5;
+  }
+
+  /* App Layout */
+  .app { display: flex; flex-direction: column; min-height: 100vh; }
+  .appbar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1rem 1.5rem; background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-color);
+  }
+  .stage { flex: 1; padding: 1.5rem; overflow-y: auto; }
+
+  /* Utilities */
+  .badge-dashaus { background: var(--brand-dashaus); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+  .badge-raum { background: var(--brand-raum); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+  .btn { padding: 8px 16px; border-radius: var(--radius); border: none; cursor: pointer; font-weight: 500; }
+  .btn-primary { background: var(--brand-dashaus); color: white; }
+
+  /* Print Styles */
+  @media print {
+    .appbar, .rail, .doc-actions, .alert-strip, .ai-panel, .toast, .no-print { display: none !important; }
+    .app { display: block !important; min-height: auto !important; }
+    .stage { padding: 0 !important; overflow: visible !important; }
+    .sheet {
+      box-shadow: none !important;
+      border: none !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding: 0 !important;
+      page-break-inside: avoid;
     }
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; padding-bottom: 50px; }
-    
-    .header-sub { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: bold; }
-    .brand-title { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; }
-    .brand-title span { color: var(--accent-gold); }
-
-    /* Nav Bar */
-    .nav-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
-    .nav-item {
-      background: #dad5ca; padding: 10px 14px; border-radius: 6px; text-align: center;
-      min-width: 70px; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; border: none; outline: none; flex: 1;
-    }
-    .nav-item.active { background: #ffffff; color: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
-
-    /* Stats Grid */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-card { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; }
-    .stat-title { font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: bold; }
-    .stat-value { font-size: 17px; font-weight: 800; margin: 4px 0; }
-    .stat-value.red { color: var(--alert-red); }
-    .stat-sub { font-size: 11px; color: #6b7280; }
-
-    /* Controls Tab */
-    .tab-content { display: none; }
-    .tab-content.active { display: block !important; }
-
-    .filter-section { background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
-    .search-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
-    
-    .customer-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f3f4f6; }
-    .customer-name { font-weight: 700; font-size: 13px; color: #111; }
-    .customer-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
-    .customer-amount { font-weight: 800; font-size: 13px; color: var(--alert-red); }
-
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-    .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
-
-    .sync-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue); color: white; font-size: 11px; padding: 6px 15px; display: flex; justify-content: space-between; z-index: 999; }
-  </style>
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    .sheet::before { display: none !important; }
+  }
+</style>
 </head>
 <body>
-
-  <div class="header-sub">HỆ THỐNG THU PHÍ VẬN HÀNH</div>
-  <div class="brand-title">Dashaus <span>& Raum</span></div>
-
-  <!-- Tab Menu -->
-  <div class="nav-bar">
-    <button type="button" class="nav-item active" data-tab="congno">🏛️ Công nợ</button>
-    <button type="button" class="nav-item" data-tab="nhapnhanh">⚡ Nhập nhanh</button>
-    <button type="button" class="nav-item" data-tab="phieuthu">📄 Phiếu thu</button>
-  </div>
-
-  <!-- TAB CÔNG NỢ -->
-  <div id="tab-congno" class="tab-content active">
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-title">HÓA ĐƠN KỲ THÁNG 9/2026</div>
-        <div class="stat-value">6.533.798.792 ₫</div>
-        <div class="stat-sub">Đã thu: 3.994.581.196đ</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">TỔNG CÒN PHẢI THU</div>
-        <div class="stat-value red">2.539.217.596 ₫</div>
-        <div class="stat-sub">Tất cả kỳ chưa thu</div>
-      </div>
-    </div>
-
-    <div class="filter-section">
-      <input type="text" id="searchInput" class="search-input" placeholder="Gõ tên khách để tìm...">
-      <div id="customerContainer"></div>
-    </div>
-  </div>
-
-  <!-- TAB NHẬP NHANH -->
-  <div id="tab-nhapnhanh" class="tab-content">
-    <div class="filter-section">
-      <h3 style="margin-top:0;">Tạo Phiếu Thu Mới</h3>
-      <form id="addForm">
-        <div class="form-group">
-          <label>Tên Khách Hàng / Công Ty</label>
-          <input type="text" id="custName" required placeholder="Nhập tên khách hàng...">
+  <div id="appRoot">
+    <div class="app">
+      <header class="appbar">
+        <h2>Hệ Thống Quản Lý Tài Chính & Công Nợ</h2>
+        <div>
+          <span class="badge-dashaus">Dashaus</span>
+          <span class="badge-raum">Raum</span>
         </div>
-        <div class="form-group">
-          <label>Địa Chỉ / Phòng</label>
-          <input type="text" id="custAddr" placeholder="VD: 27AB Trần Nhật Duật">
+      </header>
+      <main class="stage">
+        <div class="sheet">
+          <p>Hệ thống đã sẵn sàng. Giao diện và dữ liệuRuntime sẽ được khởi tạo tại đây.</p>
         </div>
-        <div class="form-group">
-          <label>Số Tiền (VNĐ)</label>
-          <input type="number" id="custAmount" required placeholder="0">
-        </div>
-        <button type="submit" class="btn-submit">Lưu & Đồng Bộ Firebase</button>
-      </form>
+      </main>
     </div>
-  </div>
-
-  <!-- TAB PHIẾU THU -->
-  <div id="tab-phieuthu" class="tab-content">
-    <div class="filter-section">
-      <h3 style="margin-top:0;">Lịch Sử Thu Phí</h3>
-      <div id="receiptHistory"></div>
-    </div>
-  </div>
-
-  <div class="sync-bar">
-    <span>📶 Dashaus Realtime</span>
-    <span id="syncStatus">Đã kết nối</span>
   </div>
 
   <script>
-    // Xử lý chuyển tab trực tiếp bằng EventListener
-    document.querySelectorAll('.nav-item').forEach(button => {
-      button.addEventListener('click', function() {
-        const tabTarget = this.getAttribute('data-tab');
-        
-        // Reset class active
-        document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        
-        // Active tab chọn
-        this.classList.add('active');
-        const activeTab = document.getElementById('tab-' + tabTarget);
-        if (activeTab) activeTab.classList.add('active');
-      });
+    // System Runtime & Utilities
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('App initialized successfully.');
     });
-
-    // Dữ liệu mẫu
-    let dataList = [
-      { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
-      { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
-      { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
-    ];
-
-    function renderList(items) {
-      const container = document.getElementById('customerContainer');
-      const history = document.getElementById('receiptHistory');
-      let html = '';
-      items.forEach(item => {
-        html += `
-          <div class="customer-item">
-            <div>
-              <div class="customer-name">${item.name}</div>
-              <div class="customer-sub">${item.addr || ''}</div>
-            </div>
-            <div class="customer-amount">${Number(item.amount).toLocaleString('vi-VN')}đ</div>
-          </div>
-        `;
-      });
-      if (container) container.innerHTML = html;
-      if (history) history.innerHTML = html;
-    }
-
-    // Tìm kiếm
-    const searchInp = document.getElementById('searchInput');
-    if (searchInp) {
-      searchInp.addEventListener('input', function() {
-        const val = this.value.toLowerCase();
-        const filtered = dataList.filter(i => i.name.toLowerCase().includes(val) || (i.addr && i.addr.toLowerCase().includes(val)));
-        renderList(filtered);
-      });
-    }
-
-    // Firebase
-    try {
-      const firebaseConfig = {
-        apiKey: "AIzaSyD7S8piLF6v1X9lrmldkBdvhyPw1gNf4Ag",
-        authDomain: "dashausraum.firebaseapp.com",
-        databaseURL: "https://dashausraum-default-rtdb.firebaseio.com",
-        projectId: "dashausraum",
-        storageBucket: "dashausraum.firebasestorage.app",
-        messagingSenderId: "604478845270",
-        appId: "1:604478845270:web:e4257ffffc29c0b564a6f7"
-      };
-      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-      const dbRef = firebase.database().ref('dashausData');
-
-      document.getElementById('addForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const newItem = {
-          name: document.getElementById('custName').value,
-          addr: document.getElementById('custAddr').value,
-          amount: Number(document.getElementById('custAmount').value),
-          timestamp: Date.now()
-        };
-        dbRef.push(newItem);
-        this.reset();
-        document.querySelector('[data-tab="congno"]').click();
-      });
-
-      dbRef.on('value', (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          const list = Object.values(val).reverse();
-          dataList = list.concat([
-            { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
-            { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
-            { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
-          ]);
-        }
-        renderList(dataList);
-        document.getElementById('syncStatus').innerText = 'Đồng bộ: ' + new Date().toLocaleTimeString('vi-VN');
-      });
-    } catch(err) {
-      console.log('Firebase init error:', err);
-    }
-
-    renderList(dataList);
   </script>
 </body>
 </html>
