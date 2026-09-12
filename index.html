@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashaus & Raum - Hệ Thống Thu Phí Vận Hành</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg-color: #e9e6df;
@@ -17,54 +16,52 @@
       --border-color: #d1cbd0;
     }
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; padding-bottom: 40px; }
+    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; padding-bottom: 50px; }
     
     .header-sub { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: bold; }
     .brand-title { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; }
     .brand-title span { color: var(--accent-gold); }
 
-    .nav-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
+    /* Nav Tabs */
+    .nav-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
     .nav-item {
-      background: #dad5ca; padding: 8px 12px; border-radius: 6px; text-align: center;
-      min-width: 65px; font-size: 11px; font-weight: 600; cursor: pointer; color: #444; position: relative; user-select: none;
+      background: #dad5ca; padding: 10px 14px; border-radius: 6px; text-align: center;
+      min-width: 70px; font-size: 12px; font-weight: bold; cursor: pointer; color: #444; border: none; outline: none;
     }
-    .nav-item i { display: block; font-size: 16px; margin-bottom: 4px; color: #555; }
-    .nav-item.active { background: #ffffff; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    
-    .control-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
-    .btn-ctrl {
-      background: #ffffff; border: 1px solid var(--border-color); padding: 6px 12px;
-      border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
-    }
-    .btn-ctrl:active { transform: scale(0.98); }
+    .nav-item.active { background: #ffffff; color: var(--primary-blue); box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
 
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-    .stat-card { background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .stat-card { background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb; }
     .stat-title { font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: bold; }
-    .stat-value { font-size: 18px; font-weight: 800; margin: 4px 0; }
+    .stat-value { font-size: 17px; font-weight: 800; margin: 4px 0; }
     .stat-value.red { color: var(--alert-red); }
     .stat-sub { font-size: 11px; color: #6b7280; }
 
+    /* Tab Content Controls */
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    .filter-section { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 15px; }
+    .filter-section { background: var(--card-bg); padding: 15px; border-radius: 8px; margin-bottom: 15px; }
     .search-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
     
-    .data-list { background: var(--card-bg); border-radius: 8px; }
+    /* Customer Data Row */
+    .data-list { background: var(--card-bg); border-radius: 8px; border: 1px solid #eee; }
     .customer-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f3f4f6; }
-    .customer-name { font-weight: 700; font-size: 13px; }
-    .customer-sub { font-size: 11px; color: #6b7280; }
+    .customer-name { font-weight: 700; font-size: 13px; color: #111; }
+    .customer-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
     .customer-amount { font-weight: 800; font-size: 13px; color: var(--alert-red); }
 
-    .form-group { margin-bottom: 10px; }
+    /* Inputs */
+    .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
-    .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 15px; }
 
-    .sync-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue); color: white; font-size: 11px; padding: 6px 15px; display: flex; justify-content: space-between; }
+    .sync-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue); color: white; font-size: 11px; padding: 6px 15px; display: flex; justify-content: space-between; z-index: 999; }
   </style>
 
+  <!-- Firebase Compat SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
@@ -73,12 +70,11 @@
   <div class="header-sub">HỆ THỐNG THU PHÍ VẬN HÀNH</div>
   <div class="brand-title">Dashaus <span>& Raum</span></div>
 
-  <!-- Thanh Menu bấm chuyển Tab -->
+  <!-- Tab Menu -->
   <div class="nav-bar">
-    <div class="nav-item" onclick="switchTab('phieuthu')"><i class="fa-regular fa-file-lines"></i>Phiếu thu</div>
-    <div class="nav-item" onclick="switchTab('nhapnhanh')"><i class="fa-solid fa-bolt"></i>Nhập nhanh</div>
-    <div class="nav-item active" onclick="switchTab('congno')"><i class="fa-solid fa-building-columns"></i>Công nợ</div>
-    <div class="nav-item" onclick="switchTab('thongke')"><i class="fa-chart-pie fa-solid"></i>Thống kê</div>
+    <button class="nav-item" id="btn-phieuthu">📄 Phiếu thu</button>
+    <button class="nav-item" id="btn-nhapnhanh">⚡ Nhập nhanh</button>
+    <button class="nav-item active" id="btn-congno">🏛️ Công nợ</button>
   </div>
 
   <!-- TAB CÔNG NỢ -->
@@ -91,37 +87,35 @@
       </div>
       <div class="stat-card">
         <div class="stat-title">TỔNG CÒN PHẢI THU</div>
-        <div class="stat-value red" id="totalDebt">2.539.217.596 ₫</div>
+        <div class="stat-value red">2.539.217.596 ₫</div>
         <div class="stat-sub">Tất cả kỳ chưa thu</div>
       </div>
     </div>
 
     <div class="filter-section">
-      <input type="text" id="searchInput" class="search-input" placeholder="Gõ tên khách để tìm..." oninput="filterData()">
-      <div class="data-list" id="customerContainer">
-        <!-- Dữ liệu nhảy ở đây -->
-      </div>
+      <input type="text" id="searchInput" class="search-input" placeholder="Gõ tên khách để tìm...">
+      <div class="data-list" id="customerContainer"></div>
     </div>
   </div>
 
-  <!-- TAB NHẬP NHANH PHIẾU THU -->
+  <!-- TAB NHẬP NHANH -->
   <div id="tab-nhapnhanh" class="tab-content">
     <div class="filter-section">
-      <h3>Tạo Phiếu Thu Mới</h3>
-      <form id="addReceiptForm">
+      <h3 style="margin-top:0;">Tạo Phiếu Thu Mới</h3>
+      <form id="addForm">
         <div class="form-group">
           <label>Tên Khách Hàng / Công Ty</label>
-          <input type="text" id="custName" required placeholder="Nhập tên...">
+          <input type="text" id="custName" required placeholder="Nhập tên khách hàng...">
         </div>
         <div class="form-group">
           <label>Địa Chỉ / Phòng</label>
           <input type="text" id="custAddr" placeholder="VD: 27AB Trần Nhật Duật">
         </div>
         <div class="form-group">
-          <label>Số Tiền Thu (VNĐ)</label>
+          <label>Số Tiền (VNĐ)</label>
           <input type="number" id="custAmount" required placeholder="0">
         </div>
-        <button type="submit" class="btn-submit">Lưu & Đồng Bộ Ngay</button>
+        <button type="submit" class="btn-submit">Lưu & Đồng Bộ Firebase</button>
       </form>
     </div>
   </div>
@@ -129,18 +123,18 @@
   <!-- TAB PHIẾU THU -->
   <div id="tab-phieuthu" class="tab-content">
     <div class="filter-section">
-      <h3>Lịch Sử Thu Phí</h3>
+      <h3 style="margin-top:0;">Lịch Sử Thu Phí</h3>
       <div class="data-list" id="receiptHistory"></div>
     </div>
   </div>
 
   <div class="sync-bar">
-    <span><i class="fa-solid fa-wifi"></i> Dashaus Realtime</span>
-    <span id="syncStatus">Đã sẵn sàng</span>
+    <span>📶 Dashaus Realtime Connected</span>
+    <span id="syncStatus">Đang kết nối...</span>
   </div>
 
   <script>
-    // Config Firebase
+    // 1. Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyD7S8piLF6v1X9lrmldkBdvhyPw1gNf4Ag",
       authDomain: "dashausraum.firebaseapp.com",
@@ -156,74 +150,88 @@
     const database = firebase.database();
     const dbRef = database.ref('dashausData');
 
-    let rawData = [
+    let defaultData = [
       { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
       { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
       { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
     ];
 
-    // Chuyển Tab
-    function switchTab(tabName) {
+    // 2. Tab Switching Logic
+    function openTab(tabName, btnElement) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
       
-      const targetTab = document.getElementById('tab-' + tabName);
-      if(targetTab) targetTab.classList.add('active');
-      event.currentTarget.classList.add('active');
+      document.getElementById('tab-' + tabName).classList.add('active');
+      btnElement.classList.add('active');
     }
 
-    // Render danh sách
-    function renderList(items) {
+    document.getElementById('btn-phieuthu').onclick = function() { openTab('phieuthu', this); };
+    document.getElementById('btn-nhapnhanh').onclick = function() { openTab('nhapnhanh', this); };
+    document.getElementById('btn-congno').onclick = function() { openTab('congno', this); };
+
+    // 3. Render Functions
+    function renderList(list) {
       const container = document.getElementById('customerContainer');
-      container.innerHTML = '';
-      items.forEach(item => {
-        container.innerHTML += `
+      const history = document.getElementById('receiptHistory');
+      
+      let html = '';
+      list.forEach(item => {
+        html += `
           <div class="customer-item">
             <div>
               <div class="customer-name">${item.name}</div>
-              <div class="customer-sub">${item.addr || ''}</div>
+              <div class="customer-sub">${item.addr || 'Hồ Chí Minh'}</div>
             </div>
             <div class="customer-amount">${Number(item.amount).toLocaleString('vi-VN')}đ</div>
           </div>
         `;
       });
+
+      container.innerHTML = html;
+      history.innerHTML = html;
     }
 
-    // Tìm kiếm
-    function filterData() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = rawData.filter(i => i.name.toLowerCase().includes(query) || (i.addr && i.addr.toLowerCase().includes(query)));
+    // Search filter
+    document.getElementById('searchInput').oninput = function() {
+      const val = this.value.toLowerCase();
+      const filtered = defaultData.filter(i => i.name.toLowerCase().includes(val) || (i.addr && i.addr.toLowerCase().includes(val)));
       renderList(filtered);
-    }
+    };
 
-    // Nhập dữ liệu mới
-    document.getElementById('addReceiptForm').addEventListener('submit', (e) => {
+    // 4. Form Submit & Firebase push
+    document.getElementById('addForm').onsubmit = function(e) {
       e.preventDefault();
-      const newItem = {
-        name: document.getElementById('custName').value,
-        addr: document.getElementById('custAddr').value,
-        amount: Number(document.getElementById('custAmount').value),
-        timestamp: Date.now()
-      };
-      
-      dbRef.push(newItem);
-      document.getElementById('addReceiptForm').reset();
-      switchTab('congno');
-    });
+      const name = document.getElementById('custName').value;
+      const addr = document.getElementById('custAddr').value;
+      const amount = document.getElementById('custAmount').value;
 
-    // Lắng nghe Firebase Realtime
+      dbRef.push({
+        name: name,
+        addr: addr,
+        amount: Number(amount),
+        timestamp: Date.now()
+      });
+
+      this.reset();
+      openTab('congno', document.getElementById('btn-congno'));
+    };
+
+    // 5. Firebase Listener
     dbRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const list = Object.values(data);
-        rawData = list.concat(rawData);
+        const firebaseList = Object.values(data).reverse();
+        defaultData = firebaseList.concat([
+          { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
+          { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
+          { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
+        ]);
       }
-      renderList(rawData);
-      document.getElementById('syncStatus').innerText = 'Đã cập nhật: ' + new Date().toLocaleTimeString('vi-VN');
+      renderList(defaultData);
+      document.getElementById('syncStatus').innerText = 'Đã đồng bộ: ' + new Date().toLocaleTimeString('vi-VN');
     });
 
-    // Chạy ban đầu
-    renderList(rawData);
+    renderList(defaultData);
   </script>
 </body>
 </html>
