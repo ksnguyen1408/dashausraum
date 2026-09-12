@@ -14,186 +14,133 @@
       --primary-blue: #1b365d;
       --accent-gold: #c59b27;
       --alert-red: #d9534f;
-      --success-green: #2e7d32;
       --border-color: #d1cbd0;
     }
-
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; }
-
-    /* Top Banner Header */
+    body { background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 15px; padding-bottom: 40px; }
+    
     .header-sub { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; font-weight: bold; }
     .brand-title { font-size: 24px; font-weight: 800; color: var(--primary-blue); margin-bottom: 12px; }
     .brand-title span { color: var(--accent-gold); }
 
-    /* Navigation Bar */
     .nav-bar { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
     .nav-item {
       background: #dad5ca; padding: 8px 12px; border-radius: 6px; text-align: center;
-      min-width: 65px; font-size: 11px; font-weight: 600; cursor: pointer; color: #444; position: relative;
+      min-width: 65px; font-size: 11px; font-weight: 600; cursor: pointer; color: #444; position: relative; user-select: none;
     }
     .nav-item i { display: block; font-size: 16px; margin-bottom: 4px; color: #555; }
     .nav-item.active { background: #ffffff; color: #000; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .badge-num {
-      position: absolute; top: -4px; right: 4px; background: var(--alert-red);
-      color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; line-height: 16px;
-    }
-
-    /* Control Bar */
+    
     .control-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; align-items: center; }
     .btn-ctrl {
       background: #ffffff; border: 1px solid var(--border-color); padding: 6px 12px;
       border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;
     }
-    .btn-ctrl.primary { background: #e0f2fe; color: #0369a1; border: none; }
-    .btn-ctrl.danger { background: #fee2e2; color: #b91c1c; border: none; }
+    .btn-ctrl:active { transform: scale(0.98); }
 
-    /* Stats Cards Grid */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-    .stat-card {
-      background: var(--card-bg); padding: 15px; border-radius: 8px;
-      border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
+    .stat-card { background: var(--card-bg); padding: 15px; border-radius: 8px; border: 1px solid #e5e7eb; }
     .stat-title { font-size: 10px; text-transform: uppercase; color: #6b7280; font-weight: bold; }
-    .stat-value { font-size: 20px; font-weight: 800; margin: 4px 0; }
+    .stat-value { font-size: 18px; font-weight: 800; margin: 4px 0; }
     .stat-value.red { color: var(--alert-red); }
     .stat-sub { font-size: 11px; color: #6b7280; }
 
-    /* Search & Filters */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     .filter-section { background: var(--card-bg); padding: 12px; border-radius: 8px; margin-bottom: 15px; }
-    .search-input {
-      width: 100%; padding: 10px 15px; border: 1px solid #d1d5db; border-radius: 6px;
-      font-size: 13px; margin-bottom: 10px; background: #f9fafb;
-    }
-    .filter-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-    .tag {
-      background: #f3f4f6; border: 1px solid #e5e7eb; padding: 5px 10px;
-      border-radius: 15px; font-size: 11px; font-weight: 600; cursor: pointer;
-    }
-    .tag.active { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
-    .tag.warning { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+    .search-input { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+    
+    .data-list { background: var(--card-bg); border-radius: 8px; }
+    .customer-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #f3f4f6; }
+    .customer-name { font-weight: 700; font-size: 13px; }
+    .customer-sub { font-size: 11px; color: #6b7280; }
+    .customer-amount { font-weight: 800; font-size: 13px; color: var(--alert-red); }
 
-    /* Data List Table */
-    .data-list { background: var(--card-bg); border-radius: 8px; overflow: hidden; }
-    .customer-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 12px 15px; border-bottom: 1px solid #f3f4f6;
-    }
-    .customer-item:last-child { border-bottom: none; }
-    .customer-name { font-weight: 700; font-size: 13px; color: #1f2937; }
-    .customer-sub { font-size: 11px; color: #6b7280; margin-top: 2px; }
-    .customer-amount { font-weight: 800; font-size: 13px; color: var(--alert-red); text-align: right; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+    .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .btn-submit { background: var(--primary-blue); color: white; border: none; padding: 10px; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-    /* Sync Indicator Bar */
-    .sync-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue);
-      color: white; font-size: 11px; padding: 4px 15px; display: flex; justify-content: space-between;
-    }
+    .sync-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--primary-blue); color: white; font-size: 11px; padding: 6px 15px; display: flex; justify-content: space-between; }
   </style>
 
-  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-  <!-- Top Header -->
   <div class="header-sub">HỆ THỐNG THU PHÍ VẬN HÀNH</div>
   <div class="brand-title">Dashaus <span>& Raum</span></div>
 
-  <!-- Navigation Menu -->
+  <!-- Thanh Menu bấm chuyển Tab -->
   <div class="nav-bar">
-    <div class="nav-item"><i class="fa-regular fa-file-lines"></i>Phiếu thu</div>
-    <div class="nav-item"><i class="fa-solid fa-bolt"></i>Nhập nhanh</div>
-    <div class="nav-item active"><i class="fa-solid fa-building-columns"></i>Công nợ</div>
-    <div class="nav-item"><i class="fa-solid fa-clock-rotate-left"></i>Tuổi nợ</div>
-    <div class="nav-item"><i class="fa-chart-pie fa-solid"></i>Thống kê</div>
-    <div class="nav-item"><i class="fa-solid fa-rotate-left"></i>Hoàn cọc</div>
-    <div class="nav-item"><i class="fa-solid fa-user-plus"></i>Khách mới cọc</div>
-    <div class="nav-item"><i class="fa-solid fa-sack-dollar"></i>Chi phí</div>
-    <div class="nav-item"><i class="fa-solid fa-circle-exclamation" style="color:red;"></i>Cần chi gấp</div>
-    <div class="nav-item"><i class="fa-solid fa-clipboard-list"></i>Giao việc <span class="badge-num">4</span></div>
+    <div class="nav-item" onclick="switchTab('phieuthu')"><i class="fa-regular fa-file-lines"></i>Phiếu thu</div>
+    <div class="nav-item" onclick="switchTab('nhapnhanh')"><i class="fa-solid fa-bolt"></i>Nhập nhanh</div>
+    <div class="nav-item active" onclick="switchTab('congno')"><i class="fa-solid fa-building-columns"></i>Công nợ</div>
+    <div class="nav-item" onclick="switchTab('thongke')"><i class="fa-chart-pie fa-solid"></i>Thống kê</div>
   </div>
 
-  <!-- Control Actions -->
-  <div class="control-bar">
-    <button class="btn-ctrl"><i class="fa-solid fa-chevron-left"></i> Tháng 9/2026 <i class="fa-solid fa-chevron-right"></i></button>
-    <button class="btn-ctrl"><i class="fa-solid fa-rotate"></i> Tải lại</button>
-    <button class="btn-ctrl"><i class="fa-solid fa-arrow-down"></i> Tải tổng thể</button>
-    <button class="btn-ctrl"><i class="fa-solid fa-arrow-up"></i> Up tổng thể</button>
-    <button class="btn-ctrl primary"><i class="fa-solid fa-sparkles"></i> Trợ lý AI</button>
-    <button class="btn-ctrl danger"><i class="fa-solid fa-flag"></i> 15</button>
-  </div>
-
-  <!-- Summary Statistics Grid -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-title">HÓA ĐƠN KỲ THÁNG 9/2026</div>
-      <div class="stat-value">6.533.798.792 ₫</div>
-      <div class="stat-sub">Đã thu kỳ này: 3.994.581.196đ</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">TỔNG CÒN PHẢI THU</div>
-      <div class="stat-value red">2.539.217.596 ₫</div>
-      <div class="stat-sub">Tất cả các kỳ chưa thu đủ</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">QUÁ HẠN</div>
-      <div class="stat-value red">2.539.217.596 ₫</div>
-      <div class="stat-sub">Lãi tạm tính: 558.372đ</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-title">NỢ LÂU NHẤT</div>
-      <div class="stat-value" style="font-size:16px;">MỘC KHANG</div>
-      <div class="stat-sub" style="color:red;">7 ngày quá hạn</div>
-    </div>
-  </div>
-
-  <!-- Filters & Customer List -->
-  <div class="filter-section">
-    <input type="text" class="search-input" placeholder="Gõ tên khách để tìm...">
-    <div class="filter-tags">
-      <div class="tag active">Tất cả</div>
-      <div class="tag">Còn nợ</div>
-      <div class="tag">Thu một phần</div>
-      <div class="tag">Đã thu đủ</div>
-      <div class="tag warning"><i class="fa-solid fa-triangle-exclamation"></i> Thu dư</div>
-      <div class="tag"><i class="fa-solid fa-calendar-day"></i> Thu theo ngày</div>
-    </div>
-    
-    <div class="data-list" id="customerContainer">
-      <div class="customer-item">
-        <div>
-          <div class="customer-name">HELLOWORLD ONLINE EDUCATION PTE.LTD</div>
-          <div class="customer-sub">27AB Trần Nhật Duật</div>
-        </div>
-        <div class="customer-amount">199.245.580đ</div>
+  <!-- TAB CÔNG NỢ -->
+  <div id="tab-congno" class="tab-content active">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-title">HÓA ĐƠN KỲ THÁNG 9/2026</div>
+        <div class="stat-value">6.533.798.792 ₫</div>
+        <div class="stat-sub">Đã thu: 3.994.581.196đ</div>
       </div>
-      <div class="customer-item">
-        <div>
-          <div class="customer-name">CÔNG TY TNHH ROSEN ENGINEERING VIETNAM</div>
-          <div class="customer-sub">340/3 Ung Văn Khiêm</div>
-        </div>
-        <div class="customer-amount">176.512.970đ</div>
+      <div class="stat-card">
+        <div class="stat-title">TỔNG CÒN PHẢI THU</div>
+        <div class="stat-value red" id="totalDebt">2.539.217.596 ₫</div>
+        <div class="stat-sub">Tất cả kỳ chưa thu</div>
       </div>
-      <div class="customer-item">
-        <div>
-          <div class="customer-name">CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA</div>
-          <div class="customer-sub">121 Trần Thần Tông</div>
-        </div>
-        <div class="customer-amount">155.010.639đ</div>
+    </div>
+
+    <div class="filter-section">
+      <input type="text" id="searchInput" class="search-input" placeholder="Gõ tên khách để tìm..." oninput="filterData()">
+      <div class="data-list" id="customerContainer">
+        <!-- Dữ liệu nhảy ở đây -->
       </div>
     </div>
   </div>
 
-  <!-- Bottom Realtime Status Indicator -->
+  <!-- TAB NHẬP NHANH PHIẾU THU -->
+  <div id="tab-nhapnhanh" class="tab-content">
+    <div class="filter-section">
+      <h3>Tạo Phiếu Thu Mới</h3>
+      <form id="addReceiptForm">
+        <div class="form-group">
+          <label>Tên Khách Hàng / Công Ty</label>
+          <input type="text" id="custName" required placeholder="Nhập tên...">
+        </div>
+        <div class="form-group">
+          <label>Địa Chỉ / Phòng</label>
+          <input type="text" id="custAddr" placeholder="VD: 27AB Trần Nhật Duật">
+        </div>
+        <div class="form-group">
+          <label>Số Tiền Thu (VNĐ)</label>
+          <input type="number" id="custAmount" required placeholder="0">
+        </div>
+        <button type="submit" class="btn-submit">Lưu & Đồng Bộ Ngay</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAB PHIẾU THU -->
+  <div id="tab-phieuthu" class="tab-content">
+    <div class="filter-section">
+      <h3>Lịch Sử Thu Phí</h3>
+      <div class="data-list" id="receiptHistory"></div>
+    </div>
+  </div>
+
   <div class="sync-bar">
-    <span><i class="fa-solid fa-wifi"></i> Dashaus Cloud Sync</span>
-    <span id="syncTime">Đã đồng bộ realtime</span>
+    <span><i class="fa-solid fa-wifi"></i> Dashaus Realtime</span>
+    <span id="syncStatus">Đã sẵn sàng</span>
   </div>
 
-  <!-- Firebase Script Logic -->
   <script>
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyD7S8piLF6v1X9lrmldkBdvhyPw1gNf4Ag",
       authDomain: "dashausraum.firebaseapp.com",
@@ -207,14 +154,76 @@
 
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
+    const dbRef = database.ref('dashausData');
 
-    // Đồng bộ danh sách công nợ thời gian thực
-    database.ref('dashausData').on('value', (snapshot) => {
+    let rawData = [
+      { name: "HELLOWORLD ONLINE EDUCATION PTE.LTD", addr: "27AB Trần Nhật Duật", amount: 199245580 },
+      { name: "CÔNG TY TNHH ROSEN ENGINEERING VIETNAM", addr: "340/3 Ung Văn Khiêm", amount: 176512970 },
+      { name: "CÔNG TY TNHH QUẢN LÝ DỰ ÁN CORE ASIA", addr: "121 Trần Thần Tông", amount: 155010639 }
+    ];
+
+    // Chuyển Tab
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
+      const targetTab = document.getElementById('tab-' + tabName);
+      if(targetTab) targetTab.classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+
+    // Render danh sách
+    function renderList(items) {
+      const container = document.getElementById('customerContainer');
+      container.innerHTML = '';
+      items.forEach(item => {
+        container.innerHTML += `
+          <div class="customer-item">
+            <div>
+              <div class="customer-name">${item.name}</div>
+              <div class="customer-sub">${item.addr || ''}</div>
+            </div>
+            <div class="customer-amount">${Number(item.amount).toLocaleString('vi-VN')}đ</div>
+          </div>
+        `;
+      });
+    }
+
+    // Tìm kiếm
+    function filterData() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = rawData.filter(i => i.name.toLowerCase().includes(query) || (i.addr && i.addr.toLowerCase().includes(query)));
+      renderList(filtered);
+    }
+
+    // Nhập dữ liệu mới
+    document.getElementById('addReceiptForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newItem = {
+        name: document.getElementById('custName').value,
+        addr: document.getElementById('custAddr').value,
+        amount: Number(document.getElementById('custAmount').value),
+        timestamp: Date.now()
+      };
+      
+      dbRef.push(newItem);
+      document.getElementById('addReceiptForm').reset();
+      switchTab('congno');
+    });
+
+    // Lắng nghe Firebase Realtime
+    dbRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        document.getElementById('syncTime').innerText = 'Đồng bộ: ' + new Date().toLocaleTimeString('vi-VN');
+        const list = Object.values(data);
+        rawData = list.concat(rawData);
       }
+      renderList(rawData);
+      document.getElementById('syncStatus').innerText = 'Đã cập nhật: ' + new Date().toLocaleTimeString('vi-VN');
     });
+
+    // Chạy ban đầu
+    renderList(rawData);
   </script>
 </body>
 </html>
