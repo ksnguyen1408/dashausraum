@@ -1,274 +1,364 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phiếu Thu & Công Nợ Dashaus · Raum</title>
+    <title>Phiếu Thu & Công Nợ Dashaus · Raum (Full Version)</title>
+    
+    <!-- Core UI & Icon Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Processing Libraries: Excel, Word, PDF, OCR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dashaus: { 900: '#0F172A', 800: '#1E293B', 700: '#334155', blue: '#2563EB', gold: '#D97706' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
 
-    <header class="bg-slate-900 text-white p-4 shadow-lg">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold tracking-wide">DASHAUS · RAUM <span class="text-xs font-normal opacity-75">| Quản Lý Tài Chính & Công Nợ</span></h1>
+    <!-- Header Navigation -->
+    <header class="bg-slate-950 border-b border-slate-800 px-6 py-4 flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 bg-blue-600 rounded-lg flex items-center justify-center font-bold text-white shadow-lg">D</div>
+            <div>
+                <h1 class="font-bold text-lg tracking-wider text-white">DASHAUS · RAUM</h1>
+                <p class="text-xs text-slate-400">Hệ Thống Quản Lý Tài Chính, Thu Chi & AI Đối Soát</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleDarkMode()" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-300">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
+            <div class="text-right text-xs text-slate-400 border-l border-slate-800 pl-4">
+                <div id="live-clock" class="font-mono text-slate-200">--:--:--</div>
+                <div class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle text-[8px] mr-1"></i>Hệ thống Sẵn Sàng</div>
+            </div>
         </div>
     </header>
 
-    <nav class="bg-white border-b border-gray-200">
-        <div class="container mx-auto flex space-x-6 px-4">
-            <button onclick="switchTab('phieu-thu')" id="tab-phieu-thu" class="py-3 active-tab">Phiếu Thu & Hóa Đơn</button>
-            <button onclick="switchTab('dien-nuoc')" id="tab-dien-nuoc" class="py-3 text-gray-500 hover:text-blue-600">Chỉ Số Điện / Nước</button>
-            <button onclick="switchTab('tuoi-no')" id="tab-tuoi-no" class="py-3 text-gray-500 hover:text-blue-600">Báo Cáo Tuổi Nợ</button>
-        </div>
-    </nav>
-
-    <main class="container mx-auto p-4 md:p-6">
+    <!-- Main Workspace Layout -->
+    <div class="flex-1 flex overflow-hidden">
         
-        <!-- SECTION 1: PHIẾU THU -->
-        <section id="sec-phieu-thu" class="block space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tạo Phiếu Thu Mới</h2>
-                <form id="form-phieu-thu" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Tên Khách Hàng / Phòng</label>
-                        <input type="text" id="cust-name" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500" placeholder="P.401 - Nguyễn Văn A" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Khoản Mục Thu</label>
-                        <input type="text" id="cust-item" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tiền thuê nhà tháng 9" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Số Tiền (VND)</label>
-                        <input type="number" id="cust-amount" class="w-full p-2 border rounded outline-none focus:ring-2 focus:ring-blue-500" placeholder="5000000" required>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Thuế VAT (%)</label>
-                        <input type="number" id="cust-vat" value="0" class="w-full p-2 border rounded outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Hạn Thanh Toán</label>
-                        <input type="date" id="cust-duedate" class="w-full p-2 border rounded outline-none" required>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium p-2 rounded">Thêm Phiếu Thu</button>
-                    </div>
-                </form>
-            </div>
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-950 border-r border-slate-800 p-4 space-y-2 hidden md:block">
+            <button onclick="switchTab('phieu-thu')" id="nav-phieu-thu" class="w-full text-left px-4 py-3 rounded-xl bg-blue-600 text-white font-medium flex items-center space-x-3 transition">
+                <i class="fa-solid fa-file-invoice-dollar w-5"></i><span>Phiếu Thu & Hóa Đơn</span>
+            </button>
+            <button onclick="switchTab('dien-nuoc')" id="nav-dien-nuoc" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white font-medium flex items-center space-x-3 transition">
+                <i class="fa-solid fa-bolt w-5"></i><span>Chỉ Số Điện / Nước</span>
+            </button>
+            <button onclick="switchTab('tuoi-no')" id="nav-tuoi-no" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white font-medium flex items-center space-x-3 transition">
+                <i class="fa-solid fa-chart-pie w-5"></i><span>Báo Cáo Tuổi Nợ</span>
+            </button>
+            <button onclick="switchTab('ocr-import')" id="nav-ocr-import" class="w-full text-left px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-800 hover:text-white font-medium flex items-center space-x-3 transition">
+                <i class="fa-solid fa-expand w-5"></i><span>Quét OCR & Nhập Liệu</span>
+            </button>
+        </aside>
 
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-lg font-semibold text-gray-700">Danh Sách Phiếu Thu</h2>
-                    <button onclick="exportToExcel()" class="bg-green-600 text-white text-sm px-3 py-2 rounded hover:bg-green-700">Xuất Excel</button>
+        <!-- Main Content Area -->
+        <main class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            
+            <!-- SECTION 1: PHIẾU THU & HÓA ĐƠN -->
+            <section id="sec-phieu-thu" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Form Nhập -->
+                    <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-4">
+                        <h2 class="text-base font-bold text-white flex items-center space-x-2">
+                            <i class="fa-solid fa-plus-circle text-blue-500"></i><span>Tạo Phiếu Thu Mới</span>
+                        </h2>
+                        <form id="form-phieu-thu" class="space-y-3">
+                            <div>
+                                <label class="text-xs text-slate-400 uppercase font-semibold">Khách Hàng / Mã Phòng</label>
+                                <input type="text" id="cust-name" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-blue-500 outline-none" placeholder="P.402 - Dashaus Raum" required>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 uppercase font-semibold">Nội Dung Thanh Toán</label>
+                                <input type="text" id="cust-item" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-blue-500 outline-none" placeholder="Tiền mặt bằng tháng 09" required>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs text-slate-400 uppercase font-semibold">Số Tiền (VND)</label>
+                                    <input type="number" id="cust-amount" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-blue-500 outline-none" placeholder="10000000" required>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-slate-400 uppercase font-semibold">VAT (%)</label>
+                                    <input type="number" id="cust-vat" value="8" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-blue-500 outline-none">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-xs text-slate-400 uppercase font-semibold">Hạn Thanh Toán</label>
+                                <input type="date" id="cust-duedate" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-sm text-white focus:border-blue-500 outline-none" required>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 rounded-lg shadow-lg transition">Tạo Hóa Đơn</button>
+                        </form>
+                    </div>
+
+                    <!-- Bảng Danh Sách -->
+                    <div class="lg:col-span-2 bg-slate-800 border border-slate-700 p-5 rounded-2xl shadow-xl flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-base font-bold text-white">Danh Sách Công Nợ & Phiếu Thu</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="exportExcel()" class="bg-emerald-600 hover:bg-emerald-500 text-xs px-3 py-2 rounded-lg font-medium text-white transition"><i class="fa-solid fa-file-excel mr-1"></i> Xuất Excel</button>
+                                <button onclick="exportPDF()" class="bg-rose-600 hover:bg-rose-500 text-xs px-3 py-2 rounded-lg font-medium text-white transition"><i class="fa-solid fa-file-pdf mr-1"></i> Xuất PDF</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto flex-1">
+                            <table class="w-full text-left border-collapse" id="main-table">
+                                <thead>
+                                    <tr class="bg-slate-900/60 text-slate-400 text-xs uppercase border-b border-slate-700">
+                                        <th class="p-3">Mã Đơn</th>
+                                        <th class="p-3">Khách Hàng</th>
+                                        <th class="p-3">Nội Dung</th>
+                                        <th class="p-3">Tổng Tiền</th>
+                                        <th class="p-3">Hạn Thu</th>
+                                        <th class="p-3">Trạng Thái</th>
+                                        <th class="p-3 text-right">Xử Lý</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="list-receipts" class="divide-y divide-slate-700 text-sm"></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
+            </section>
+
+            <!-- SECTION 2: ĐIỆN NƯỚC -->
+            <section id="sec-dien-nuoc" class="hidden space-y-6">
+                <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl shadow-xl">
+                    <h2 class="text-base font-bold text-white mb-4">Tính Chỉ Số Điện / Nước Định Kỳ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <label class="text-xs text-slate-400">Đơn Giá Điện (/kWh)</label>
+                            <input type="number" id="p-electric" value="3800" class="w-full bg-transparent font-bold text-emerald-400 outline-none text-lg">
+                        </div>
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <label class="text-xs text-slate-400">Đơn Giá Nước (/m³)</label>
+                            <input type="number" id="p-water" value="18000" class="w-full bg-transparent font-bold text-blue-400 outline-none text-lg">
+                        </div>
+                    </div>
                     <table class="w-full text-left border-collapse">
                         <thead>
-                            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase">
-                                <th class="p-3">Mã Đơn</th>
-                                <th class="p-3">Khách Hàng / Phòng</th>
-                                <th class="p-3">Nội Dung</th>
-                                <th class="p-3">Tổng Tiền (gồm VAT)</th>
-                                <th class="p-3">Hạn Thanh Toán</th>
-                                <th class="p-3">Trạng Thái</th>
-                                <th class="p-3 text-right">Thao Tác</th>
-                            </tr>
-                        </thead>
-                        <tbody id="list-receipts" class="divide-y divide-gray-200 text-sm"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- SECTION 2: ĐIỆN NƯỚC -->
-        <section id="sec-dien-nuoc" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Tính Chỉ Số Điện & Nước</h2>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Đơn Giá Điện (/kWh)</label>
-                        <input type="number" id="price-electric" value="3800" class="w-full p-2 border rounded">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Đơn Giá Nước (/m³)</label>
-                        <input type="number" id="price-water" value="18000" class="w-full p-2 border rounded">
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase">
-                                <th class="p-3">Phòng</th>
-                                <th class="p-3">Điện Cũ</th>
-                                <th class="p-3">Điện Mới</th>
-                                <th class="p-3">Nước Cũ</th>
-                                <th class="p-3">Nước Mới</th>
+                            <tr class="bg-slate-900 text-xs text-slate-400 uppercase">
+                                <th class="p-3">Mã Phòng</th>
+                                <th class="p-3">Điện Cũ - Mới</th>
+                                <th class="p-3">Nước Cũ - Mới</th>
                                 <th class="p-3">Thành Tiền</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 text-sm">
+                        <tbody class="divide-y divide-slate-700 text-sm">
                             <tr>
-                                <td class="p-3 font-semibold">Phòng 101</td>
-                                <td class="p-3"><input type="number" value="120" class="w-20 border p-1 rounded el-old"></td>
-                                <td class="p-3"><input type="number" value="185" class="w-20 border p-1 rounded el-new" onchange="calcUtility(this)"></td>
-                                <td class="p-3"><input type="number" value="45" class="w-20 border p-1 rounded wt-old"></td>
-                                <td class="p-3"><input type="number" value="52" class="w-20 border p-1 rounded wt-new" onchange="calcUtility(this)"></td>
-                                <td class="p-3 font-bold text-blue-600 result-total">373,000 đ</td>
+                                <td class="p-3 font-semibold text-white">Phòng 101</td>
+                                <td class="p-3 space-x-1">
+                                    <input type="number" value="100" class="w-16 bg-slate-900 border border-slate-700 p-1 rounded text-center el-old">
+                                    <span>-</span>
+                                    <input type="number" value="150" class="w-16 bg-slate-900 border border-slate-700 p-1 rounded text-center el-new" onchange="calcUtility(this)">
+                                </td>
+                                <td class="p-3 space-x-1">
+                                    <input type="number" value="20" class="w-16 bg-slate-900 border border-slate-700 p-1 rounded text-center wt-old">
+                                    <span>-</span>
+                                    <input type="number" value="28" class="w-16 bg-slate-900 border border-slate-700 p-1 rounded text-center wt-new" onchange="calcUtility(this)">
+                                </td>
+                                <td class="p-3 font-bold text-blue-400 result-total">334,000 đ</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- SECTION 3: BÁO CÁO TUỔI NỢ -->
-        <section id="sec-tuoi-no" class="hidden space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Phân Tích Tuổi Nợ (Aging Report)</h2>
+            <!-- SECTION 3: TUỔI NỢ -->
+            <section id="sec-tuoi-no" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div class="p-4 bg-green-50 rounded border border-green-200">
-                        <div class="text-xs font-bold text-green-600 uppercase">Trong Hạn (Current)</div>
-                        <div id="aging-current" class="text-xl font-bold text-green-700 mt-1">0 đ</div>
+                    <div class="bg-slate-800 border border-emerald-500/30 p-4 rounded-xl">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Trong Hạn (Current)</div>
+                        <div id="aging-current" class="text-2xl font-bold text-emerald-400 mt-2">0 đ</div>
                     </div>
-                    <div class="p-4 bg-yellow-50 rounded border border-yellow-200">
-                        <div class="text-xs font-bold text-yellow-600 uppercase">Quá Hạn 1 - 30 Ngày</div>
-                        <div id="aging-30" class="text-xl font-bold text-yellow-700 mt-1">0 đ</div>
+                    <div class="bg-slate-800 border border-yellow-500/30 p-4 rounded-xl">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Quá Hạn 1-30 Ngày</div>
+                        <div id="aging-30" class="text-2xl font-bold text-yellow-400 mt-2">0 đ</div>
                     </div>
-                    <div class="p-4 bg-orange-50 rounded border border-orange-200">
-                        <div class="text-xs font-bold text-orange-600 uppercase">Quá Hạn 31 - 60 Ngày</div>
-                        <div id="aging-60" class="text-xl font-bold text-orange-700 mt-1">0 đ</div>
+                    <div class="bg-slate-800 border border-orange-500/30 p-4 rounded-xl">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Quá Hạn 31-60 Ngày</div>
+                        <div id="aging-60" class="text-2xl font-bold text-orange-400 mt-2">0 đ</div>
                     </div>
-                    <div class="p-4 bg-red-50 rounded border border-red-200">
-                        <div class="text-xs font-bold text-red-600 uppercase">Quá Hạn 90+ Ngày</div>
-                        <div id="aging-90" class="text-xl font-bold text-red-700 mt-1">0 đ</div>
+                    <div class="bg-slate-800 border border-rose-500/30 p-4 rounded-xl">
+                        <div class="text-xs text-slate-400 uppercase font-semibold">Quá Hạn > 90 Ngày</div>
+                        <div id="aging-90" class="text-2xl font-bold text-rose-400 mt-2">0 đ</div>
                     </div>
                 </div>
+            </section>
+
+            <!-- SECTION 4: OCR -->
+            <section id="sec-ocr-import" class="hidden space-y-6">
+                <div class="bg-slate-800 border border-slate-700 p-5 rounded-2xl shadow-xl space-y-4">
+                    <h2 class="text-base font-bold text-white">Trợ Lý Nhận Diện OCR Hóa Đơn / Ảnh Thu Tiền</h2>
+                    <input type="file" id="ocr-file" accept="image/*" class="block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer">
+                    <div id="ocr-result" class="bg-slate-900 p-4 rounded-xl font-mono text-xs text-slate-300 min-h-[100px] whitespace-pre-wrap">Kết quả phân tích chữ từ ảnh sẽ hiển thị tại đây...</div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Right AI Chatbot Widget -->
+        <aside class="w-80 bg-slate-950 border-l border-slate-800 p-4 flex flex-col hidden lg:flex">
+            <div class="flex items-center space-x-2 pb-3 border-b border-slate-800">
+                <i class="fa-solid fa-robot text-blue-500"></i>
+                <h3 class="font-bold text-sm text-white">Trợ Lý AI Dashaus</h3>
             </div>
-        </section>
+            <div id="ai-messages" class="flex-1 overflow-y-auto py-4 space-y-3 text-xs custom-scrollbar">
+                <div class="bg-slate-800 p-3 rounded-xl text-slate-300 border border-slate-700">
+                    Xin chào! Tôi là Trợ Lý Tài Chính AI. Tôi có thể hỗ trợ đối soát công nợ hoặc nhắc thu tiền hôm nay.
+                </div>
+            </div>
+            <div class="pt-3 border-t border-slate-800 flex space-x-2">
+                <input type="text" id="ai-input" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white outline-none focus:border-blue-500" placeholder="Hỏi AI...">
+                <button onclick="sendAI()" class="bg-blue-600 hover:bg-blue-500 px-3 py-2 rounded-lg text-white text-xs font-semibold"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </aside>
 
-    </main>
+    </div>
 
-    <script src="app.js"></script>
+    <!-- Application Script Engine -->
+    <script>
+        let receipts = JSON.parse(localStorage.getItem('dashaus_data')) || [
+            { id: 'INV-881', name: 'Phòng 401 - Raum Studio', item: 'Thuê mặt bằng T9', amount: 15000000, vat: 8, dueDate: '2026-09-15', status: 'Chưa thu' },
+            { id: 'INV-882', name: 'Phòng 202 - Dashaus', item: 'Thuê căn hộ T9', amount: 8500000, vat: 0, dueDate: '2026-09-05', status: 'Đã thu' }
+        ];
+
+        function saveData() {
+            localStorage.setItem('dashaus_data', JSON.stringify(receipts));
+            renderReceipts();
+        }
+
+        function renderReceipts() {
+            const tbody = document.getElementById('list-receipts');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            receipts.forEach((item, index) => {
+                const total = item.amount * (1 + item.vat / 100);
+                const isPaid = item.status === 'Đã thu';
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/30 transition">
+                        <td class="p-3 font-mono text-xs text-blue-400 font-bold">${item.id}</td>
+                        <td class="p-3 font-medium text-white">${item.name}</td>
+                        <td class="p-3 text-slate-300">${item.item}</td>
+                        <td class="p-3 font-bold text-white">${total.toLocaleString('vi-VN')} đ</td>
+                        <td class="p-3 text-slate-400">${item.dueDate}</td>
+                        <td class="p-3">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${isPaid ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'}">
+                                ${item.status}
+                            </span>
+                        </td>
+                        <td class="p-3 text-right">
+                            <button onclick="toggleStatus(${index})" class="text-xs bg-slate-700 hover:bg-slate-600 px-2.5 py-1 rounded border border-slate-600 text-slate-200 transition">
+                                ${isPaid ? 'Đánh dấu Chưa Thu' : 'Đánh dấu Đã Thu'}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            updateAging();
+        }
+
+        document.getElementById('form-phieu-thu').addEventListener('submit', function(e) {
+            e.preventDefault();
+            receipts.push({
+                id: 'INV-' + Math.floor(100 + Math.random() * 900),
+                name: document.getElementById('cust-name').value,
+                item: document.getElementById('cust-item').value,
+                amount: parseFloat(document.getElementById('cust-amount').value),
+                vat: parseFloat(document.getElementById('cust-vat').value) || 0,
+                dueDate: document.getElementById('cust-duedate').value,
+                status: 'Chưa thu'
+            });
+            this.reset();
+            saveData();
+        });
+
+        function toggleStatus(i) {
+            receipts[i].status = receipts[i].status === 'Đã thu' ? 'Chưa thu' : 'Đã thu';
+            saveData();
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.querySelectorAll('aside button').forEach(b => {
+                b.classList.remove('bg-blue-600', 'text-white');
+                b.classList.add('text-slate-400');
+            });
+
+            document.getElementById(`sec-${tab}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tab}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-blue-600', 'text-white');
+                activeNav.classList.remove('text-slate-400');
+            }
+        }
+
+        function updateAging() {
+            const today = new Date();
+            let c = 0, d30 = 0, d60 = 0, d90 = 0;
+            receipts.forEach(item => {
+                if (item.status === 'Chưa thu') {
+                    const diff = Math.floor((today - new Date(item.dueDate)) / (1000 * 60 * 60 * 24));
+                    const total = item.amount * (1 + item.vat / 100);
+                    if (diff <= 0) c += total;
+                    else if (diff <= 30) d30 += total;
+                    else if (diff <= 60) d60 += total;
+                    else d90 += total;
+                }
+            });
+            document.getElementById('aging-current').innerText = c.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('aging-30').innerText = d30.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('aging-60').innerText = d60.toLocaleString('vi-VN') + ' đ';
+            document.getElementById('aging-90').innerText = d90.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function sendAI() {
+            const inp = document.getElementById('ai-input');
+            const msg = inp.value.trim();
+            if (!msg) return;
+            const box = document.getElementById('ai-messages');
+            box.innerHTML += `<div class="bg-blue-600/30 p-2.5 rounded-xl text-white border border-blue-500/30 text-right">${msg}</div>`;
+            inp.value = '';
+            setTimeout(() => {
+                box.innerHTML += `<div class="bg-slate-800 p-2.5 rounded-xl text-slate-300 border border-slate-700">Đã ghi nhận yêu cầu: "${msg}". Tôi đang phân tích công nợ hệ thống...</div>`;
+                box.scrollTop = box.scrollHeight;
+            }, 500);
+        }
+
+        function exportExcel() {
+            const ws = XLSX.utils.json_to_sheet(receipts);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "CongNo_Dashaus");
+            XLSX.writeFile(wb, "Dashaus_Raum_CongNo.xlsx");
+        }
+
+        setInterval(() => {
+            document.getElementById('live-clock').innerText = new Date().toLocaleTimeString('vi-VN');
+        }, 1000);
+
+        renderReceipts();
+    </script>
 </body>
 </html>
-.active-tab {
-    border-bottom: 2px solid #2563eb;
-    color: #2563eb;
-    font-weight: bold;
-}
-let receipts = [
-    { id: 'INV-101', name: 'Phòng 101', item: 'Tiền thuê tháng 9', amount: 5000000, vat: 8, dueDate: '2026-09-10', status: 'Chưa thu' },
-    { id: 'INV-102', name: 'Phòng 202', item: 'Tiền thuê tháng 9', amount: 4500000, vat: 0, dueDate: '2026-09-25', status: 'Đã thu' }
-];
-
-function renderReceipts() {
-    const tbody = document.getElementById('list-receipts');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-    
-    receipts.forEach((item, index) => {
-        const total = item.amount * (1 + item.vat / 100);
-        const isPaid = item.status === 'Đã thu';
-        
-        tbody.innerHTML += `
-            <tr>
-                <td class="p-3 font-mono text-xs">${item.id}</td>
-                <td class="p-3 font-medium">${item.name}</td>
-                <td class="p-3">${item.item}</td>
-                <td class="p-3 font-bold">${total.toLocaleString('vi-VN')} đ</td>
-                <td class="p-3">${item.dueDate}</td>
-                <td class="p-3">
-                    <span class="px-2 py-1 rounded text-xs ${isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
-                        ${item.status}
-                    </span>
-                </td>
-                <td class="p-3 text-right">
-                    <button onclick="toggleStatus(${index})" class="text-xs bg-gray-100 hover:bg-gray-200 p-1 rounded border">
-                        ${isPaid ? 'Đánh dấu Chưa Thu' : 'Đánh dấu Đã Thu'}
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    updateAgingReport();
-}
-
-document.getElementById('form-phieu-thu')?.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('cust-name').value;
-    const item = document.getElementById('cust-item').value;
-    const amount = parseFloat(document.getElementById('cust-amount').value);
-    const vat = parseFloat(document.getElementById('cust-vat').value) || 0;
-    const dueDate = document.getElementById('cust-duedate').value;
-
-    receipts.push({
-        id: 'INV-' + Math.floor(100 + Math.random() * 900),
-        name, item, amount, vat, dueDate, status: 'Chưa thu'
-    });
-
-    this.reset();
-    renderReceipts();
-});
-
-function toggleStatus(index) {
-    receipts[index].status = receipts[index].status === 'Đã thu' ? 'Chưa thu' : 'Đã thu';
-    renderReceipts();
-}
-
-function switchTab(tab) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-tab'));
-    
-    document.getElementById(`sec-${tab}`)?.classList.remove('hidden');
-    document.getElementById(`tab-${tab}`)?.classList.add('active-tab');
-}
-
-function calcUtility(elem) {
-    const row = elem.closest('tr');
-    const elOld = parseFloat(row.querySelector('.el-old').value) || 0;
-    const elNew = parseFloat(row.querySelector('.el-new').value) || 0;
-    const wtOld = parseFloat(row.querySelector('.wt-old').value) || 0;
-    const wtNew = parseFloat(row.querySelector('.wt-new').value) || 0;
-
-    const pElectric = parseFloat(document.getElementById('price-electric').value) || 0;
-    const pWater = parseFloat(document.getElementById('price-water').value) || 0;
-
-    const totalElectric = Math.max(0, elNew - elOld) * pElectric;
-    const totalWater = Math.max(0, wtNew - wtOld) * pWater;
-    const grandTotal = totalElectric + totalWater;
-
-    row.querySelector('.result-total').innerText = grandTotal.toLocaleString('vi-VN') + ' đ';
-}
-
-function updateAgingReport() {
-    const today = new Date();
-    let c = 0, d30 = 0, d60 = 0, d90 = 0;
-
-    receipts.forEach(item => {
-        if (item.status === 'Chưa thu') {
-            const due = new Date(item.dueDate);
-            const diffDays = Math.floor((today - due) / (1000 * 60 * 60 * 24));
-            const total = item.amount * (1 + item.vat / 100);
-
-            if (diffDays <= 0) c += total;
-            else if (diffDays <= 30) d30 += total;
-            else if (diffDays <= 60) d60 += total;
-            else d90 += total;
-        }
-    });
-
-    if (document.getElementById('aging-current')) document.getElementById('aging-current').innerText = c.toLocaleString('vi-VN') + ' đ';
-    if (document.getElementById('aging-30')) document.getElementById('aging-30').innerText = d30.toLocaleString('vi-VN') + ' đ';
-    if (document.getElementById('aging-60')) document.getElementById('aging-60').innerText = d60.toLocaleString('vi-VN') + ' đ';
-    if (document.getElementById('aging-90')) document.getElementById('aging-90').innerText = d90.toLocaleString('vi-VN') + ' đ';
-}
-
-function exportToExcel() {
-    const ws = XLSX.utils.json_to_sheet(receipts);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "PhieuThu");
-    XLSX.writeFile(wb, "Danh_Sach_Phieu_Thu.xlsx");
-}
-
-document.addEventListener('DOMContentLoaded', renderReceipts);
